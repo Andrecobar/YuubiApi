@@ -1,1 +1,8 @@
-.venv
+cat > .gitignore << EOF
+.venv/
+*.db
+__pycache__/
+*.pyc
+.env
+*.sqlite3
+EOF
