@@ -17,9 +17,9 @@ class ScraperService:
             search_url = f"https://pelisplushd.mx/?s={query}"
             response = requests.get(search_url, headers=self.headers, timeout=self.timeout)
             response.encoding = 'utf-8'
+            # Cambio aquí: usa html.parser en lugar de lxml
             soup = BeautifulSoup(response.content, 'html.parser')
             
-            # Buscar links de streamtape o yourupload
             for link in soup.find_all('a', href=True):
                 href = link.get('href', '')
                 if 'streamtape' in href or 'yourupload' in href:
@@ -29,7 +29,7 @@ class ScraperService:
                         'title': link.get_text().strip()[:50]
                     })
             
-            return links[:5]  # Máximo 5 links
+            return links[:5]
         except Exception as e:
             print(f"Error scrapeando pelisplushd: {e}")
             return []
@@ -58,7 +58,7 @@ class ScraperService:
             return []
     
     def scrape_cuevana(self, query):
-        """Scrappear cuevana.is (opcional)"""
+        """Scrappear cuevana.is"""
         links = []
         try:
             search_url = f"https://www.cuevana.is/?s={query}"
@@ -88,7 +88,6 @@ class ScraperService:
         all_links.extend(self.scrape_pelicinehd(query))
         all_links.extend(self.scrape_cuevana(query))
         
-        # Eliminar duplicados
         unique_links = []
         seen_urls = set()
         for link in all_links:
