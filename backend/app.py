@@ -1,9 +1,10 @@
 import os
 import sys
 
-# Asegurar que estamos en el directorio correcto
-backend_dir = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, backend_dir)
+# Asegurar que estamos en el directorio backend
+backend_path = os.path.dirname(os.path.abspath(__file__))
+if backend_path not in sys.path:
+    sys.path.insert(0, backend_path)
 
 from flask import Flask, jsonify
 from flask_cors import CORS
