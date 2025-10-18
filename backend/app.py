@@ -1,14 +1,19 @@
+import os
+import sys
+
+# Asegurar que estamos en el directorio correcto
+backend_dir = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, backend_dir)
+
 from flask import Flask, jsonify
 from flask_cors import CORS
 from config import config
 from database import init_db, get_db_path
 from routes import movies_bp, series_bp, admin_bp
-import os
 
 app = Flask(__name__)
 CORS(app)
 
-# Configuración
 app.config['JSON_SORT_KEYS'] = False
 
 # Inicializar BD
@@ -19,7 +24,6 @@ app.register_blueprint(movies_bp, url_prefix='/api')
 app.register_blueprint(series_bp, url_prefix='/api')
 app.register_blueprint(admin_bp, url_prefix='/api')
 
-# Ruta principal
 @app.route('/', methods=['GET'])
 def index():
     return jsonify({
