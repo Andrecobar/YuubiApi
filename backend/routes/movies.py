@@ -39,6 +39,36 @@ def get_all_movies():
         'per_page': limit
     })
 
+@movies_bp.route('/movies/search', methods=['GET'])
+def search_movies():
+    """Buscar películas por título"""
+    query = request.args.get('q', '').strip()
+    
+    if not query or len(query) < 2:
+        return jsonify({
+            'error': 'Búsqueda debe tener al menos 2 caracteres',
+            'query': query
+        }), 400
+    
+    conn = get_connection()
+    cursor = conn.cursor()
+    
+    cursor.execute('''
+        SELECT id, title, description, genre, rating, poster, year
+        FROM movies
+        WHERE title LIKE ? OR description LIKE ?
+        LIMIT 20
+    ''', (f'%{query}%', f'%{query}%'))
+    
+    movies = [dict(row) for row in cursor.fetchall()]
+    conn.close()
+    
+    return jsonify({
+        'query': query,
+        'movies': movies,
+        'total': len(movies)
+    })
+
 @movies_bp.route('/movies/<int:movie_id>', methods=['GET'])
 def get_movie(movie_id):
     """Obtener detalles de una película"""
@@ -60,28 +90,6 @@ def get_movie(movie_id):
         return jsonify({'error': 'Película no encontrada'}), 404
     
     return jsonify(dict(movie))
-
-@movies_bp.route('/movies/search', methods=['GET'])
-def search_movies():
-    """Buscar películas por título"""
-    query = request.args.get('q', '')
-    
-    if len(query) < 2:
-        return jsonify({'error': 'Búsqueda muy corta'}), 400
-    
-    conn = get_connection()
-    cursor = conn.cursor()
-    
-    cursor.execute('''
-        SELECT * FROM movies
-        WHERE title LIKE ? OR description LIKE ?
-        LIMIT 20
-    ''', (f'%{query}%', f'%{query}%'))
-    
-    movies = [dict(row) for row in cursor.fetchall()]
-    conn.close()
-    
-    return jsonify(movies)
 
 @movies_bp.route('/movies/trending', methods=['GET'])
 def get_trending_movies():
