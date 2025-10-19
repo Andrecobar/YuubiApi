@@ -1,7 +1,6 @@
 import os
 import sys
 
-# Asegurar que estamos en el directorio backend
 backend_path = os.path.dirname(os.path.abspath(__file__))
 if backend_path not in sys.path:
     sys.path.insert(0, backend_path)
@@ -10,40 +9,20 @@ from flask import Flask, jsonify
 from flask_cors import CORS
 from config import config
 from database import init_db, get_db_path
-from routes import movies_bp, series_bp, admin_bp
+from routes import movies_bp, series_bp, admin_bp, general_bp
 
 app = Flask(__name__)
 CORS(app)
 
 app.config['JSON_SORT_KEYS'] = False
 
-# Inicializar BD
 init_db()
 
 # Registrar blueprints
+app.register_blueprint(general_bp, url_prefix='/api')
 app.register_blueprint(movies_bp, url_prefix='/api')
 app.register_blueprint(series_bp, url_prefix='/api')
 app.register_blueprint(admin_bp, url_prefix='/api')
-
-@app.route('/', methods=['GET'])
-def index():
-    return jsonify({
-        'message': 'Netflix Personal API',
-        'version': '1.0.0',
-        'status': 'running',
-        'database': get_db_path(),
-        'endpoints': {
-            'movies': '/api/movies',
-            'series': '/api/series',
-            'search': '/api/search?q=title',
-            'trending': '/api/trending',
-            'admin': '/api/admin/*'
-        }
-    })
-
-@app.route('/health', methods=['GET'])
-def health():
-    return jsonify({'status': 'healthy'})
 
 @app.errorhandler(404)
 def not_found(error):
