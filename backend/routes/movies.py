@@ -2,7 +2,6 @@ from flask import jsonify, request
 from routes import movies_bp
 from database import get_connection
 from services.tmdb_service import tmdb_service
-from services.scraper_service import scraper_service
 import sqlite3
 
 @movies_bp.route('/movies', methods=['GET'])
@@ -23,9 +22,7 @@ def get_all_movies():
         LIMIT ? OFFSET ?
     ''', (limit, offset))
     
-    movies = []
-    for row in cursor.fetchall():
-        movies.append(dict(row))
+    movies = [dict(row) for row in cursor.fetchall()]
     
     cursor.execute('SELECT COUNT(*) as total FROM movies')
     total = cursor.fetchone()['total']
@@ -41,24 +38,27 @@ def get_all_movies():
 
 @movies_bp.route('/movies/search', methods=['GET'])
 def search_movies():
-    """Buscar películas por título"""
+    """Buscar películas - búsqueda mejorada"""
     query = request.args.get('q', '').strip()
     
-    if not query or len(query) < 2:
+    if not query or len(query) < 1:
         return jsonify({
-            'error': 'Búsqueda debe tener al menos 2 caracteres',
+            'error': 'Búsqueda requerida',
             'query': query
         }), 400
     
     conn = get_connection()
     cursor = conn.cursor()
     
+    # Búsqueda case-insensitive y flexible
+    search_term = f'%{query}%'
+    
     cursor.execute('''
         SELECT id, title, description, genre, rating, poster, year
         FROM movies
-        WHERE title LIKE ? OR description LIKE ?
+        WHERE LOWER(title) LIKE LOWER(?) OR LOWER(description) LIKE LOWER(?)
         LIMIT 20
-    ''', (f'%{query}%', f'%{query}%'))
+    ''', (search_term, search_term))
     
     movies = [dict(row) for row in cursor.fetchall()]
     conn.close()
