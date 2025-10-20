@@ -8,21 +8,32 @@ if backend_path not in sys.path:
 from flask import Flask, jsonify
 from flask_cors import CORS
 from config import config
-from database import init_db, get_db_path
-from routes import movies_bp, series_bp, admin_bp, general_bp
+from database import init_db
 
 app = Flask(__name__)
 CORS(app)
-
 app.config['JSON_SORT_KEYS'] = False
 
+# Inicializar BD
 init_db()
 
-# Registrar blueprints
-app.register_blueprint(general_bp, url_prefix='/api')
+# Cargar datos iniciales si BD está vacía
+try:
+    from init_data import init_with_data
+    init_with_data()
+except Exception as e:
+    print(f"⚠️ Error cargando datos iniciales: {e}")
+
+# Importar y registrar blueprints DESPUÉS de init_db
+from routes import movies_bp, series_bp, admin_bp
+
 app.register_blueprint(movies_bp, url_prefix='/api')
 app.register_blueprint(series_bp, url_prefix='/api')
 app.register_blueprint(admin_bp, url_prefix='/api')
+
+@app.route('/api/', methods=['GET'])
+def index():
+    return jsonify({'status': 'ok', 'message': 'API funcionando'})
 
 @app.errorhandler(404)
 def not_found(error):
@@ -30,7 +41,7 @@ def not_found(error):
 
 @app.errorhandler(500)
 def server_error(error):
-    return jsonify({'error': 'Error interno del servidor'}), 500
+    return jsonify({'error': str(error)}), 500
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
