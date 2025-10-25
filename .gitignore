@@ -1,39 +1,13 @@
-cat > .gitignore << 'EOF'
-# Entorno virtual
 .venv/
 venv/
 env/
-
-# Base de datos (no subir datos sensibles)
 *.db
-*.sqlite
-*.sqlite3
-
-# Archivos de configuración con secretos
-config.py
 .env
 .env.local
-
-# Archivos de Python
 __pycache__/
 *.pyc
 *.pyo
-*.egg-info/
-.Python
-
-# IDEs
-.vscode/
-.idea/
-*.swp
-
-# OS
 .DS_Store
-Thumbs.db
-
-# Logs
 *.log
-
-# Cache
-.pytest_cache/
-.coverage
-EOF
+.idea/
+.vscode/
