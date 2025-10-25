@@ -2,6 +2,9 @@ services:
   - type: web
     name: yuubi-api
     env: python
-    buildCommand: ""
+    runtime: python-3.11.6
+    buildCommand: |
+      apt-get update && apt-get install -y libxml2-dev libxslt-dev
+      pip install --upgrade pip
+      pip install -r requirements.txt
     startCommand: gunicorn main:app --bind 0.0.0.0:$PORT
-git push -u origin main
