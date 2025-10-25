@@ -37,6 +37,7 @@ class Link:
         self.source = source  # 'pelisplushd', 'pelicinehd', etc
         self.season = season
         self.episode = episode
+        self.language = language
         self.status = 'active'
         self.scraped_at = datetime.now()
         self.checked_at = None

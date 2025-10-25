@@ -100,6 +100,46 @@ def add_link():
     
     try:
         cursor.execute('''
+            INSERT INTO links (content_id, content_type, url, source, season, episode, language, status)
+            VALUES (?, ?, ?, ?, ?, ?, ?, 'active')
+        ''', (
+            data['content_id'],
+            data['content_type'],
+            data['url'],
+            data['source'],
+            data.get('season'),
+            data.get('episode'),
+            data.get('language')  # 👈 nuevo campo
+        ))
+        
+        link_id = cursor.lastrowid
+        conn.commit()
+        conn.close()
+        
+        return jsonify({
+            'message': 'Link agregado',
+            'link_id': link_id,
+            'language': data.get('language', 'No especificado')
+        }), 201
+    except Exception as e:
+        conn.close()
+        return jsonify({'error': str(e)}), 500
+
+    """Agregar link manualmente"""
+    data = request.get_json()
+    
+    required = ['content_id', 'content_type', 'url', 'source']
+    if not all(field in data for field in required):
+        return jsonify({'error': 'Faltan campos requeridos'}), 400
+    
+    if data['content_type'] not in ['movie', 'series']:
+        return jsonify({'error': 'content_type debe ser movie o series'}), 400
+    
+    conn = get_connection()
+    cursor = conn.cursor()
+    
+    try:
+        cursor.execute('''
             INSERT INTO links (content_id, content_type, url, source, season, episode, status)
             VALUES (?, ?, ?, ?, ?, ?, 'active')
         ''', (

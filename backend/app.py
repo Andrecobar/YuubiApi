@@ -14,22 +14,21 @@ app = Flask(__name__)
 CORS(app)
 app.config['JSON_SORT_KEYS'] = False
 
-# Inicializar BD
 init_db()
 
-# Cargar datos iniciales si BD está vacía
 try:
     from init_data import init_with_data
     init_with_data()
 except Exception as e:
     print(f"⚠️ Error cargando datos iniciales: {e}")
 
-# Importar y registrar blueprints DESPUÉS de init_db
 from routes import movies_bp, series_bp, admin_bp
+from routes.extractor import extractor_bp
 
 app.register_blueprint(movies_bp, url_prefix='/api')
 app.register_blueprint(series_bp, url_prefix='/api')
 app.register_blueprint(admin_bp, url_prefix='/api')
+app.register_blueprint(extractor_bp, url_prefix='/api')
 
 @app.route('/api/', methods=['GET'])
 def index():
