@@ -7,7 +7,10 @@ Uso: python update_gist.py
 import requests
 import json
 import os
+from dotenv import load_dotenv
 from datetime import datetime
+
+load_dotenv()
 
 # Configuración
 GITHUB_TOKEN = os.getenv('GITHUB_TOKEN')  # Tu Personal Access Token de GitHub

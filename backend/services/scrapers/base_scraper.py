@@ -1,6 +1,7 @@
 import requests
 from abc import ABC, abstractmethod
 import time
+import random
 
 class BaseScraper(ABC):
     """Clase base para todos los scrapers - Compatible con Render.com"""
@@ -106,7 +107,6 @@ class BaseScraper(ABC):
             'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
             'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:121.0) Gecko/20100101 Firefox/121.0',
         ]
-        import random
         self.session.headers['User-Agent'] = random.choice(user_agents)
     
     def make_request(self, url: str, method: str = 'GET', **kwargs):
